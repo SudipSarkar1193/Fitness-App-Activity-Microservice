@@ -6,5 +6,11 @@ spring:
     mongodb:
       uri: mongodb+srv://netajibosethesudip_db_user:ByzIUDM6Lb1h9lmC@cluster0.witjzlp.mongodb.net/fitness-app-db?retryWrites=true&w=majority&appName=Cluster0
 
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+
 server:
   port: 8082
