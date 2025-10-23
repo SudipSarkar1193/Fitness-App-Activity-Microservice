@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ActivityController {
     private final ActivityService activityService;
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<ResponseDTO> createActivity(@RequestBody ActivityRequestDTO requestDTO) {
         if(requestDTO.getName() == null || requestDTO.getName().isEmpty()) {
             throw new IllegalArgumentException("Invalid name supplied");
