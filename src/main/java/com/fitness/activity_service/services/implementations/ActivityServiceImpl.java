@@ -6,18 +6,31 @@ import com.fitness.activity_service.dtos.ResponseDTO;
 import com.fitness.activity_service.models.Activity;
 import com.fitness.activity_service.repository.ActivityRepository;
 import com.fitness.activity_service.services.contracts.ActivityService;
+import com.fitness.activity_service.services.contracts.UserValidationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final UserValidationService userValidationService;
+
+
     @Override
     public ResponseDTO createActivity(ActivityRequestDTO activityRequest) {
+
+        log.info("Validating createActivity request for user UUID: {}", activityRequest.getUserUuid());
+
+        if(!userValidationService.isValidUser(activityRequest.getUserUuid())){
+            throw new IllegalStateException("User is not valid");
+        }
+
         Activity activity = Activity.builder().
                 activityUuid(UUID.randomUUID())
                 .userUuid(activityRequest.getUserUuid())
