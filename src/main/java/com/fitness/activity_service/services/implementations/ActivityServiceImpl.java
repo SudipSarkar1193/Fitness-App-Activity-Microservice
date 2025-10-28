@@ -9,6 +9,8 @@ import com.fitness.activity_service.services.contracts.ActivityService;
 import com.fitness.activity_service.services.contracts.UserValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,6 +22,10 @@ public class ActivityServiceImpl implements ActivityService {
 
     private final ActivityRepository activityRepository;
     private final UserValidationService userValidationService;
+    private final KafkaTemplate<String,Activity> activityKafkaTemplate;
+
+    @Value("${spring.kafka.topic.name}")
+    private String topicName;;
 
 
     @Override
@@ -45,8 +51,17 @@ public class ActivityServiceImpl implements ActivityService {
 
         Activity savedActivity = activityRepository.save(activity);
 
-        ActivityResponseDTO activityResponseDTO = mapToResponseDTO(savedActivity);
+        try {
+            activityKafkaTemplate.send(
+                    topicName,
+                    String.valueOf(savedActivity.getActivityUuid()),
+                    savedActivity
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Kafka error from ActivityServiceImpl : "+e);
+        }
 
+        ActivityResponseDTO activityResponseDTO = mapToResponseDTO(savedActivity);
         return new ResponseDTO(activityResponseDTO,"Activity created successfully");
 
     }
